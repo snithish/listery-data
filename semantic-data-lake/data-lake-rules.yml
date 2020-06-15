@@ -1,0 +1,36 @@
+prefixes:
+  listery-abox: https://www.listery.com/abox#
+  listery-tbox: https://www.listery.com/tbox#
+  xsd: http://www.w3.org/2001/XMLSchema#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  grel: http://users.ugent.be/~bjdmeest/function/grel.ttl#
+
+mappings:
+  product:
+    sources:
+      - ['resources/raw/test.csv~csv']
+    subjects:
+      function: grel:toLowerCase
+      parameters:
+        - [grel:valueParameter, listery-abox:$(asin)]
+    predicateobjects:
+      - [a, listery-tbox:Product]
+      - [listery-tbox:productName, listery-abox:$(title)]
+      - [listery-tbox:price, $(price), xsd:double]
+      - [listery-tbox:description, $(description), xsd:string]
+      - [listery-tbox:image-url, $(imUrl), xsd:string]
+      - predicates: listery-tbox:hasBrand
+        objects:
+        - mapping: brand
+          condition:
+            function: equal
+            parameters:
+              - [str1, $(brand)]
+              - [str2, $(brand)]
+  brand:
+    sources:
+      - ['resources/raw/test.csv~csv']
+    s: listery-abox:$(brand)
+    po:
+      - [a, listery-tbox:Brand]
+      - [rdfs:label, $(brand), xsd:string]

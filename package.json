@@ -1,0 +1,26 @@
+{
+  "name": "listery",
+  "version": "1.0.0",
+  "description": "SDM Project - Team Listery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-knowledge-graph": "yarrrml-parser -i semantic-data-lake/data-lake-rules.yml -o resources/datalake.rml.ttl && java -jar resources/rmlmapper-4.8.0-r248.jar -m resources/datalake.rml.ttl -o output.ttl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snithish/listery-data.git"
+  },
+  "keywords": [
+    "data-integration"
+  ],
+  "author": "djordjije-krivokapic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/snithish/listery-data/issues"
+  },
+  "homepage": "https://github.com/snithish/listery-data#readme",
+  "dependencies": {
+    "@rmlio/yarrrml-parser": "^1.1.1"
+  }
+}
