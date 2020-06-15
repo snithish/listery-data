@@ -2,7 +2,7 @@ import json
 import os
 import random
 import csv
-import re
+import string
 
 data_folder = "data/"
 output_folder = 'output/'
@@ -68,7 +68,7 @@ def generate_csv_prodcucts_for_store(store_products_dict, store_name, products):
                 row.append(None)
             else:
                 if field == "categories":
-                    value = str(product[field][0][0]).strip()
+                    value = str(product[field][0][0]).strip(string.punctuation + "\n").replace('"',"")
                     if store_name == "Store_C":
                         temp_category = value
                         continue
@@ -82,14 +82,16 @@ def generate_csv_prodcucts_for_store(store_products_dict, store_name, products):
                     else:
                         row.append(str(price - random.uniform(0.0, price_change)))
                 elif field == "brand":
-                    value = str(product[field]).strip()
+                    value = str(product[field]).strip(string.punctuation + "\n").replace('"',"")
                     if store_name == "Store_C":
                         temp_brand = value
                         continue
                     row.append(value)
 
+                elif field == "description":
+                    value = str(product[field]).strip(string.punctuation + "\n").replace('"',"")
                 else:
-                    value = str(product[field]).strip()
+                    value = str(product[field]).strip().replace('"',"")
                     row.append(value)
         if store_name == "Store_C":
             row.append(temp_brand + "_" + temp_category)
