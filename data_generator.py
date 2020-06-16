@@ -44,11 +44,12 @@ def get_products_from_json(json_path):
 
 def assign_products_to_store(store_products_dict, products, stores_dict):
     for store_name, file_type in stores_dict.items():
-        sampled_products = random.sample(products, int(len(products) * 0.7))
+        sampled_products = random.sample(products, int(len(products) * 0.69))
 
         if file_type == CSV_FILE_FORMAT:
             generate_csv_prodcucts_for_store(store_products_dict, store_name, sampled_products)
         else:
+            sampled_products = random.sample(products, int(len(products) * 0.68))
             generate_json_prodcucts_for_store(store_products_dict, store_name, sampled_products)
 
 
@@ -65,6 +66,8 @@ def generate_csv_prodcucts_for_store(store_products_dict, store_name, products):
         temp_category = ""
         for field in schema_columns:
             if field not in product.keys():
+                if store_name == "Store_C" and field == "brand":
+                    continue
                 row.append(None)
             else:
                 if field == "categories":
