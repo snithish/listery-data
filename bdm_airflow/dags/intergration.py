@@ -41,7 +41,7 @@ with models.DAG(
         task_id='run_integration_job',
         main_jar=SPARK_JOBS_JAR,
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
-        arguments=["integration"])
+        arguments=["--local", "false", "--subprogram", "integration"])
 
     delete_dataproc_cluster = dataproc_operator.DataprocClusterDeleteOperator(
         task_id='delete_dataproc_cluster',

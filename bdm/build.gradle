@@ -1,10 +1,15 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'java'
+    id 'application'
 }
 
-group 'org.example'
+group 'io.listery'
 version '1.0-SNAPSHOT'
+
+
+mainClassName = 'io.listery.Application'
+
 
 repositories {
     mavenCentral()
