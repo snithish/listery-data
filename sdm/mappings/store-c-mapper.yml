@@ -1,0 +1,34 @@
+prefixes:
+  listery-schema: https://www.listery.com/tbox#
+  listery-instance: https://www.listery.com/abox#
+  grel: http://users.ugent.be/~bjdmeest/function/grel.ttl#
+
+mappings:
+  product:
+    sources:
+      - ['../resources/raw/Store_C_downsampled.csv~csv']
+    subjects:
+      function: grel:toLowerCase
+      parameters:
+        - [grel:valueParameter, listery-instance:$(product_id)]
+    predicateobjects:
+      - [a, listery-schema:Product]
+      - [listery-schema:price, $(price), xsd:double]
+      - [listery-schema:image-url, $(img_url), xsd:string]
+      - [listery-schema:productName, $(name), xsd:string]
+      - [listery-schema:description, $(description), xsd:string]
+      - predicates: listery-schema:hasCategory
+        objects:
+          - mapping: category
+            condition:
+              function: equal
+              parameters:
+                - [str1, $(category)]
+                - [str2, $(category)]
+  category:
+    sources:
+      - ['../resources/raw/Store_C_downsampled.csv~csv']
+    s: listery-instance:$(category)
+    po:
+      - [a, listery-schema:Category]
+      - [rdfs:label, $(category), xsd:string]

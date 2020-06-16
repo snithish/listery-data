@@ -1,0 +1,49 @@
+prefixes:
+  listery-schema: https://www.listery.com/tbox#
+  listery-instance: https://www.listery.com/abox#
+  grel: http://users.ugent.be/~bjdmeest/function/grel.ttl#
+
+mappings:
+  product:
+    sources:
+      - ['../resources/raw/Store_A_downsampled.csv~csv']
+    subjects:
+      function: grel:toLowerCase
+      parameters:
+        - [grel:valueParameter, listery-instance:$(asin)]
+    predicateobjects:
+      - [a, listery-schema:Product]
+      - [listery-schema:price, $(price), xsd:double]
+      - [listery-schema:image-url, $(imUrl), xsd:string]
+      - [listery-schema:productName, $(title), xsd:string]
+      - [listery-schema:description, $(description), xsd:string]
+      - predicates: listery-schema:hasBrand
+        objects:
+        - mapping: brand
+          condition:
+            function: equal
+            parameters:
+              - [str1, $(brand)]
+              - [str2, $(brand)]
+      - predicates: listery-schema:hasCategory
+        objects:
+          - mapping: category
+            condition:
+              function: equal
+              parameters:
+                - [str1, $(categories)]
+                - [str2, $(categories)]
+  brand:
+    sources:
+      - ['../resources/raw/Store_A_downsampled.csv~csv']
+    s: listery-instance:$(brand)
+    po:
+      - [a, listery-schema:Brand]
+      - [rdfs:label, $(brand), xsd:string]
+  category:
+    sources:
+      - ['../resources/raw/Store_A_downsampled.csv~csv']
+    s: listery-instance:$(categories)
+    po:
+      - [a, listery-schema:Category]
+      - [rdfs:label, $(categories), xsd:string]
