@@ -21,7 +21,7 @@ default_dag_args = {
     # If a task fails, retry it once after waiting at least 5 minutes
     'retries': 1,
     'retry_delay': datetime.timedelta(minutes=5),
-    'project_id': models.Variable.get('gcp_project')
+    'project_id': 'upc-bdm'
 }
 
 with models.DAG(
@@ -29,11 +29,11 @@ with models.DAG(
         schedule_interval=datetime.timedelta(days=1),
         default_args=default_dag_args) as dag:
     # Create a Cloud Dataproc cluster.
-    create_dataproc_cluster = dataproc_operator.DataProcSparkOperator(
+    create_dataproc_cluster = dataproc_operator.DataprocClusterCreateOperator(
         task_id='create_dataproc_cluster',
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
         num_workers=2,
-        zone=models.Variable.get('gce_zone'),
+        zone='us-east1-c',
         master_machine_type='n1-standard-1',
         worker_machine_type='n1-standard-1')
 
