@@ -25,6 +25,9 @@ mappings:
       - predicates: listery-schema:belongsTo
         objects:
           - mapping: store
+      - predicates: listery-schema:originatedFrom
+        objects:
+          - mapping: origin
   category:
     sources:
       - ['%yield%']
@@ -38,5 +41,14 @@ mappings:
     subject: listery-instance:StoreC
     predicateobjects:
       - [a, listery-schema:Store]
+      - [listery-schema:store-name, "Store C", xsd:string]
       - [listery-schema:latitude, 4.5, xsd:double]
       - [listery-schema:longitude, 2.5, xsd:double]
+  origin:
+    sources:
+      - ['%yield%']
+    subject: listery-instance:%file%-%date%
+    predicateobjects:
+      - [a, listery-schema:Origin]
+      - [listery-schema:date, '%date%', xsd:date]
+      - [listery-schema:file, %file%, xsd:string]

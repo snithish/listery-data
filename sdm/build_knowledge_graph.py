@@ -16,12 +16,15 @@ def flattern_mappings():
 def job(meta):
     content = None
     mapper = meta[0]
-    chunk = meta[1]
+    date = meta[1][0]
+    chunk = meta[1][1]
     index = meta[2]
 
     with open(f'mappings/{mapper}', 'r') as content_file:
         content = content_file.read()
-        content = content.replace('%yield%', f'resources/sources/{chunk}~csv')
+        content = content.replace('%yield%', f'resources/sources/{date}/{chunk}')
+        content = content.replace('%date%', f'{date}')
+        content = content.replace('%file%', f'{chunk}')
     with open(f'resources/tmp/{os.path.splitext(mapper)[0]}-{index}-templated.yml', 'w') as file:
         file.write(content)
 
@@ -32,8 +35,9 @@ def job(meta):
 if __name__ == '__main__':
     # define what mapping templates will be used for chunks
     mapping = {
-        'store-a-mapper.yml': ['test-a.csv'],
-        'store-c-mapper.yml': ['test-c.csv']
+        'store-a-mapper.yml': [('2020-06-16', 'Store_A.csv~csv'), ('2020-06-17', 'Store_A.csv~csv')],
+        # 'store-b-mapper.yml': [('2020-06-16', 'Store_B.json'), ('2020-06-17', 'Store_B.json')],
+        'store-c-mapper.yml': [('2020-06-16', 'Store_C.csv~csv'), ('2020-06-17', 'Store_C.csv~csv')]
     }
 
     # flat the structure

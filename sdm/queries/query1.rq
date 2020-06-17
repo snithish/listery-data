@@ -1,0 +1,40 @@
+prefix listery-instance: <https://www.listery.com/abox#>
+prefix listery-schema: <https://www.listery.com/tbox#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?productName ?price ?description ?imageUrl ?brand ?category ?store ?latitude ?longitude ?fileName ?date
+WHERE
+{
+
+ # product full description
+ ?product rdf:type listery-schema:Product ;
+ 	      listery-schema:price ?price ;
+          listery-schema:image-url ?imageUrl ;
+          listery-schema:product-name ?productName ;
+          listery-schema:description ?description .
+
+ # store details
+ ?product listery-schema:belongsToStore ?store .
+ ?store listery-schema:latitude ?latitude .
+ ?store listery-schema:longitude ?longitude .
+
+ # file metadata
+ ?product listery-schema:originatedFrom ?meta .
+ ?meta listery-schema:file ?fileName ;
+       listery-schema:date ?date .
+
+ # product brand
+ OPTIONAL
+ {
+   ?product listery-schema:hasBrand ?productBrand .
+   ?productBrand listery-schema:brand-name ?brand .
+ }
+
+ # product category
+ OPTIONAL
+ {
+   ?product listery-schema:hasCategory ?productCategory .
+   ?productCategory listery-schema:category-name ?category .
+ }
+
+}

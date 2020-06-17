@@ -6,18 +6,15 @@ prefixes:
 mappings:
   product:
     sources:
-      - access: ../resources/raw/Store_B_downsampled.json
+      - access: '%yield%'
         referenceFormulation: jsonpath
         iterator: "$.products[*]"
-    subjects:
-      function: grel:toLowerCase
-      parameters:
-        - [grel:valueParameter, listery-instance:$(asin)]
+    subjects: listery-instance:$(asin)
     predicateobjects:
       - [a, listery-schema:Product]
       - [listery-schema:price, $(price), xsd:double]
       - [listery-schema:image-url, $(imUrl), xsd:string]
-      - [listery-schema:productName, $(title), xsd:string]
+      - [listery-schema:product-name, $(title), xsd:string]
       - [listery-schema:description, $(description), xsd:string]
       - predicates: listery-schema:hasBrand
         objects:
@@ -35,21 +32,45 @@ mappings:
               parameters:
                 - [str1, $(categories)]
                 - [str2, $(categories)]
+      - predicates: listery-schema:originatedFrom
+        objects:
+          - mapping: origin
   brand:
     sources:
-      - access: ../resources/raw/Store_B_downsampled.json
+      - access: '%yield%'
         referenceFormulation: jsonpath
         iterator: "$.products[*]"
-    s: listery-instance:$(brand)
-    po:
+    subject: listery-instance:$(brand)
+    predicateobjects:
       - [a, listery-schema:Brand]
-      - [rdfs:label, $(brand), xsd:string]
+      - [listery-schema:brand-name, $(brand), xsd:string]
   category:
     sources:
-      - access: ../resources/raw/Store_B_downsampled.json
+      - access: '%yield%'
         referenceFormulation: jsonpath
         iterator: "$.products[*]"
-    s: listery-instance:$(categories)
-    po:
+    subject: listery-instance:$(categories)
+    predicateobjects:
       - [a, listery-schema:Category]
-      - [rdfs:label, $(categories), xsd:string]
+      - [listery-schema:category-name, $(categories), xsd:string]
+  store:
+    sources:
+      - access: '%yield%'
+        referenceFormulation: jsonpath
+        iterator: "$.products[*]"
+    subject: listery-instance:StoreB
+    predicateobjects:
+      - [a, listery-schema:Store]
+      - [listery-schema:store-name, "Store B", xsd:string]
+      - [listery-schema:latitude, 2.5, xsd:double]
+      - [listery-schema:longitude, 3.5, xsd:double]
+  origin:
+    sources:
+      - access: '%yield%'
+        referenceFormulation: jsonpath
+        iterator: "$.products[*]"
+    subject: listery-instance:%file%-%date%
+    predicateobjects:
+      - [a, listery-schema:Origin]
+      - [listery-schema:date, '%date%', xsd:date]
+      - [listery-schema:file, %file%, xsd:string]
