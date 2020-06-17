@@ -28,7 +28,6 @@ public class Application {
             .option("header",true)
             .csv("gs://listery-datalake/raw_data/2020-06-16/Store_A.csv");
     Dataset<Row> storeB = sparkSession.read()
-            .option("header",true)
             .json("gs://listery-datalake/raw_data/2020-06-16/Store_B.json");
     Dataset<Row> storeC = sparkSession.read()
             .option("header",true)
