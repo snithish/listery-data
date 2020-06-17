@@ -2,8 +2,13 @@ package io.listery;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+
+// store A
+// store B
+// store C
 
 public class Application {
   public static void main(String[] args) {
@@ -15,10 +20,35 @@ public class Application {
     fsConfig.set("google.cloud.auth.service.account.enable", "true");
     fsConfig.set(
         "google.cloud.auth.service.account.json.keyfile",
-        "/home/snithish/Downloads/upc-bdm-9c2f9309ef03.json");
+        "/home/dad/workspace/nithish_GCP.json");
 
-    Dataset<Row> text = sparkSession.read().text("gs://listery-datalake/raw_data/rose.txt");
-    long numberOflines = text.count();
-    System.out.println("Number of lines in file: " + numberOflines);
+
+    // Reading data from GCS
+    Dataset<Row> storeA = sparkSession.read()
+            .option("header",true)
+            .csv("gs://listery-datalake/raw_data/2020-06-16/Store_A.csv");
+    Dataset<Row> storeB = sparkSession.read()
+            .option("header",true)
+            .json("gs://listery-datalake/raw_data/2020-06-16/Store_B.json");
+    Dataset<Row> storeC = sparkSession.read()
+            .option("header",true)
+            .csv("gs://listery-datalake/raw_data/2020-06-16/Store_C.csv");
+
+    // transforming columns names to match those of the canonical one
+    storeA = storeA.withColumnRenamed("asin", "id")
+                    .withColumnRenamed("title","product")
+                    .withColumnRenamed("imUrl","imgUrl")
+                    .withColumnRenamed("categories","category");
+    storeC = storeC.withColumnRenamed("product_id", "id")
+                    .withColumnRenamed("name","product")
+                    .withColumnRenamed("img_url","imgUrl");
+
+
+    // union of files
+    Dataset<Row> result = storeA.union(storeC);
+
+    // writing as parquet to GCS
+    result.write().parquet("gs://listery-datalake/canonical_data/test.parquet");
+
   }
 }
