@@ -4,12 +4,6 @@
   "description": "SDM Project - Team Listery",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -rf graph/*",
-    "parse-mapping-store-a": "yarrrml-parser -i mappings/store-a-mapper.yml -o graph/store-a-rules.rml.ttl",
-    "parse-mapping-store-c": "yarrrml-parser -i mappings/store-c-mapper.yml -o graph/store-c-rules.rml.ttl",
-    "extract-rdf-instances-store-a": "java -jar ../resources/rmlmapper-4.8.0-r248.jar -m graph/store-a-rules.rml.ttl -o graph/store-a-graph.ttl -s turtle",
-    "extract-rdf-instances-store-c": "java -jar ../resources/rmlmapper-4.8.0-r248.jar -m graph/store-c-rules.rml.ttl -o graph/store-c-graph.ttl -s turtle",
-    "build-knowledge-graph": "npm run parse-mapping-store-a & npm run parse-mapping-store-c & npm run extract-rdf-instances-store-a & npm run extract-rdf-instances-store-c"
   },
   "repository": {
     "type": "git",

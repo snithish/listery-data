@@ -6,16 +6,13 @@ prefixes:
 mappings:
   product:
     sources:
-      - ['../resources/raw/Store_A_downsampled.csv~csv']
-    subjects:
-      function: grel:toLowerCase
-      parameters:
-        - [grel:valueParameter, listery-instance:$(asin)]
+      - ['%yield%']
+    subjects: listery-instance:$(asin)
     predicateobjects:
       - [a, listery-schema:Product]
       - [listery-schema:price, $(price), xsd:double]
       - [listery-schema:image-url, $(imUrl), xsd:string]
-      - [listery-schema:productName, $(title), xsd:string]
+      - [listery-schema:product-name, $(title), xsd:string]
       - [listery-schema:description, $(description), xsd:string]
       - predicates: listery-schema:hasBrand
         objects:
@@ -33,17 +30,28 @@ mappings:
               parameters:
                 - [str1, $(categories)]
                 - [str2, $(categories)]
+      - predicates: listery-schema:belongsToStore
+        objects:
+          - mapping: store
   brand:
     sources:
-      - ['../resources/raw/Store_A_downsampled.csv~csv']
-    s: listery-instance:$(brand)
-    po:
+      - ['%yield%']
+    subject: listery-instance:$(brand)
+    predicateobjects:
       - [a, listery-schema:Brand]
-      - [rdfs:label, $(brand), xsd:string]
+      - [listery-schema:brand-name, $(brand), xsd:string]
   category:
     sources:
-      - ['../resources/raw/Store_A_downsampled.csv~csv']
-    s: listery-instance:$(categories)
-    po:
+      - ['%yield%']
+    subject: listery-instance:$(categories)
+    predicateobjects:
       - [a, listery-schema:Category]
-      - [rdfs:label, $(categories), xsd:string]
+      - [listery-schema:category-name, $(categories), xsd:string]
+  store:
+    sources:
+      - ['%yield%']
+    subject: listery-instance:StoreA
+    predicateobjects:
+      - [a, listery-schema:Store]
+      - [listery-schema:latitude, 2.5, xsd:double]
+      - [listery-schema:longitude, 3.5, xsd:double]

@@ -1,0 +1,55 @@
+prefixes:
+  listery-schema: https://www.listery.com/tbox#
+  listery-instance: https://www.listery.com/abox#
+  grel: http://users.ugent.be/~bjdmeest/function/grel.ttl#
+
+mappings:
+  product:
+    sources:
+      - access: ../resources/raw/Store_B_downsampled.json
+        referenceFormulation: jsonpath
+        iterator: "$.products[*]"
+    subjects:
+      function: grel:toLowerCase
+      parameters:
+        - [grel:valueParameter, listery-instance:$(asin)]
+    predicateobjects:
+      - [a, listery-schema:Product]
+      - [listery-schema:price, $(price), xsd:double]
+      - [listery-schema:image-url, $(imUrl), xsd:string]
+      - [listery-schema:productName, $(title), xsd:string]
+      - [listery-schema:description, $(description), xsd:string]
+      - predicates: listery-schema:hasBrand
+        objects:
+        - mapping: brand
+          condition:
+            function: equal
+            parameters:
+              - [str1, $(brand)]
+              - [str2, $(brand)]
+      - predicates: listery-schema:hasCategory
+        objects:
+          - mapping: category
+            condition:
+              function: equal
+              parameters:
+                - [str1, $(categories)]
+                - [str2, $(categories)]
+  brand:
+    sources:
+      - access: ../resources/raw/Store_B_downsampled.json
+        referenceFormulation: jsonpath
+        iterator: "$.products[*]"
+    s: listery-instance:$(brand)
+    po:
+      - [a, listery-schema:Brand]
+      - [rdfs:label, $(brand), xsd:string]
+  category:
+    sources:
+      - access: ../resources/raw/Store_B_downsampled.json
+        referenceFormulation: jsonpath
+        iterator: "$.products[*]"
+    s: listery-instance:$(categories)
+    po:
+      - [a, listery-schema:Category]
+      - [rdfs:label, $(categories), xsd:string]
