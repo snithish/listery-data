@@ -6,11 +6,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions$;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Optional;
 
 public class Application {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ParseException {
     System.out.println("usage: --local [boolean true or false] --subprogram [integration]");
     System.out.println("Invoking with :" + Arrays.toString(args));
     if (args.length < 4) {
@@ -30,12 +31,23 @@ public class Application {
 
     switch (args[3]) {
       case "integration":
-        Optional<String> dateToProcess = Optional.empty();
-        if (args.length == 5) {
-          dateToProcess = Optional.of(args[4]);
+        {
+          Optional<String> dateToProcess = Optional.empty();
+          if (args.length == 5) {
+            dateToProcess = Optional.of(args[4]);
+          }
+          new PhysicalIntegration(sparkSession).integrate(dateToProcess);
+          break;
         }
-        new PhysicalIntegration(sparkSession).integrate(dateToProcess);
-        break;
+      case "priceDiff":
+        {
+          Optional<String> dateToProcess = Optional.empty();
+          if (args.length == 5) {
+            dateToProcess = Optional.of(args[4]);
+          }
+          new PriceDiff(sparkSession).alertUserOnPriceChange(dateToProcess);
+          break;
+        }
       default:
         System.out.println("Invalid application");
         System.exit(1);

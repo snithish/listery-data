@@ -47,7 +47,7 @@ public class PhysicalIntegration {
         .write()
         .mode(SaveMode.Overwrite)
         .partitionBy("date")
-        .parquet("gs://listery-datalake/canonical_data/products");
+        .parquet(Constants.PRODUCTS);
   }
 
   private Dataset<Row> addMissingCanonicalColumns(Dataset<Row> data) {
