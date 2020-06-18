@@ -2,7 +2,7 @@ import json
 import os
 import random
 import csv
-import string
+import re
 
 data_folder = "data/"
 output_folder = 'output/'
@@ -44,12 +44,13 @@ def get_products_from_json(json_path):
 
 def assign_products_to_store(store_products_dict, products, stores_dict):
     for store_name, file_type in stores_dict.items():
-        sampled_products = random.sample(products, int(len(products) * 0.69))
+        sampled_products = random.sample(products, int(len(products) * 0.7))
 
         if file_type == CSV_FILE_FORMAT:
-            generate_csv_prodcucts_for_store(store_products_dict, store_name, sampled_products)
+            # generate_csv_prodcucts_for_store(store_products_dict, store_name, sampled_products)
+            continue
         else:
-            sampled_products = random.sample(products, int(len(products) * 0.68))
+            # sampled_products = random.sample(products, int(len(products) * 0.68))
             generate_json_prodcucts_for_store(store_products_dict, store_name, sampled_products)
 
 
@@ -71,7 +72,7 @@ def generate_csv_prodcucts_for_store(store_products_dict, store_name, products):
                 row.append(None)
             else:
                 if field == "categories":
-                    value = str(product[field][0][0]).strip(string.punctuation + "\n").replace('"',"")
+                    value = re.sub(r'[^\w\s]','',"".join(str(product[field][0][0]).split("\n"))).replace('"',"")
                     if store_name == "Store_C":
                         temp_category = value
                         continue
@@ -85,19 +86,23 @@ def generate_csv_prodcucts_for_store(store_products_dict, store_name, products):
                     else:
                         row.append(str(price - random.uniform(0.0, price_change)))
                 elif field == "brand":
-                    value = str(product[field]).strip(string.punctuation + "\n").replace('"',"")
+                    value = re.sub(r'[^\w\s]','',"".join(str(product[field]).split("\n"))).replace('"',"")
                     if store_name == "Store_C":
                         temp_brand = value
                         continue
                     row.append(value)
 
                 elif field == "description":
-                    value = str(product[field]).strip(string.punctuation + "\n").replace('"',"")
+                    value = re.sub(r'[^\w\s]','',"".join(str(product[field]).split("\n"))).replace('"',"")
+                    row.append(value)
+                elif field == "imUrl":
+                    value = str(product[field]).replace('"',"")
+                    row.append(value)
                 else:
-                    value = str(product[field]).strip().replace('"',"")
+                    value = re.sub(r'[^\w\s]','',"".join(str(product[field]).split("\n"))).replace('"',"")
                     row.append(value)
         if store_name == "Store_C":
-            row.append(temp_brand + "_" + temp_category)
+            row.append(temp_category)
         store_products_dict[store_name]["products"].append(row)
         
 
@@ -106,8 +111,13 @@ def generate_json_prodcucts_for_store(store_products_dict, store_name, products)
     if not store_name in store_products_dict.keys(): 
         store_products_dict[store_name] = {"schema_type": JSON_FILE_FORMAT, "products": []}
 
+    count = 0
     for product in products:
         store_products_dict[store_name]['products'].append(product)
+        count += 1
+
+        if count % 100 == 0:
+            return
         
 
 
