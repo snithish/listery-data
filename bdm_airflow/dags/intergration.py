@@ -34,10 +34,9 @@ with models.DAG(
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
         storage_bucket='listery-staging',
         num_workers=2,
-        image_version='1.5-debian10',
         master_disk_size=20,
         worker_disk_size=20,
-        num_preemptible_workers=2,
+        num_preemptible_workers=1,
         zone='us-east1-c',
         master_machine_type='n1-standard-1',
         worker_machine_type='n1-standard-1')
