@@ -32,7 +32,12 @@ with models.DAG(
     create_dataproc_cluster = dataproc_operator.DataprocClusterCreateOperator(
         task_id='create_dataproc_cluster',
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
+        storage_bucket='listery-staging',
         num_workers=2,
+        image_version='1.5-debian10',
+        master_disk_size=20,
+        worker_disk_size=20,
+        num_preemptible_workers=2,
         zone='us-east1-c',
         master_machine_type='n1-standard-1',
         worker_machine_type='n1-standard-1')
@@ -43,9 +48,30 @@ with models.DAG(
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
         arguments=["--local", "false", "--subprogram", "integration"])
 
+    offer_integration = dataproc_operator.DataProcSparkOperator(
+        task_id='offer_integration',
+        main_jar=SPARK_JOBS_JAR,
+        cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
+        arguments=["--local", "false", "--subprogram", "offerIntegration"])
+
+    es_refresh = dataproc_operator.DataProcSparkOperator(
+        task_id='es_refresh',
+        main_jar=SPARK_JOBS_JAR,
+        cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
+        arguments=["--local", "false", "--subprogram", "refreshEs"])
+
+    price_diff = dataproc_operator.DataProcSparkOperator(
+        task_id='price_diff',
+        main_jar=SPARK_JOBS_JAR,
+        cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
+        arguments=["--local", "false", "--subprogram", "priceDiff"])
+
     delete_dataproc_cluster = dataproc_operator.DataprocClusterDeleteOperator(
         task_id='delete_dataproc_cluster',
         cluster_name='composer-data-integration-cluster-{{ ds_nodash }}',
         trigger_rule=trigger_rule.TriggerRule.ALL_DONE)
 
-    create_dataproc_cluster >> run_integration_job >> delete_dataproc_cluster
+    create_dataproc_cluster >> [run_integration_job, offer_integration]
+    run_integration_job >> price_diff
+    [run_integration_job, offer_integration] >> es_refresh
+    [price_diff, es_refresh] >> delete_dataproc_cluster
