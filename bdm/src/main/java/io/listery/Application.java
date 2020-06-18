@@ -1,13 +1,21 @@
 package io.listery;
 
+import avro.shaded.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions$;
+import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
+import scala.Tuple2;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 public class Application {
@@ -28,41 +36,57 @@ public class Application {
       localConfig(sparkSession);
     }
     sparkSession.conf().set("spark.sql.sources.partitionOverwriteMode", "dynamic");
+    esConfig(sparkSession);
+    Optional<String> dateToProcess = Optional.empty();
+    if (args.length == 5) {
+      dateToProcess = Optional.of(args[4]);
+    }
+    //    esTest(sparkSession);
 
+    subprogram(args, sparkSession, dateToProcess);
+
+    //    test(sparkSession);
+  }
+
+  private static void esTest(SparkSession sparkSession) {
+    JavaSparkContext js = new JavaSparkContext(sparkSession.sparkContext());
+    Map<String, ?> otp = ImmutableMap.of("iata", "OTP", "name", "Otopeni");
+    Map<String, ?> jfk = ImmutableMap.of("iata", "JFK", "name", "JFK NYC");
+    JavaPairRDD<?, ?> pairRdd =
+        js.parallelizePairs(
+            ImmutableList.of(
+                new Tuple2<Object, Object>(1, otp), new Tuple2<Object, Object>(2, jfk)));
+    JavaEsSpark.saveToEsWithMeta(pairRdd, "test");
+  }
+
+  private static void subprogram(
+      String[] args, SparkSession sparkSession, Optional<String> dateToProcess)
+      throws ParseException {
     switch (args[3]) {
       case "integration":
         {
-          Optional<String> dateToProcess = Optional.empty();
-          if (args.length == 5) {
-            dateToProcess = Optional.of(args[4]);
-          }
           new PhysicalIntegration(sparkSession).integrate(dateToProcess);
           break;
         }
       case "offerIntegration":
         {
-          Optional<String> dateToProcess = Optional.empty();
-          if (args.length == 5) {
-            dateToProcess = Optional.of(args[4]);
-          }
           new OffersIntegration(sparkSession).integrate(dateToProcess);
           break;
         }
       case "priceDiff":
         {
-          Optional<String> dateToProcess = Optional.empty();
-          if (args.length == 5) {
-            dateToProcess = Optional.of(args[4]);
-          }
           new PriceDiff(sparkSession).alertUserOnPriceChange(dateToProcess);
+          break;
+        }
+      case "refreshEs":
+        {
+          new RefreshEs(sparkSession).refresh(dateToProcess);
           break;
         }
       default:
         System.out.println("Invalid application");
         System.exit(1);
     }
-
-    //    test(sparkSession);
   }
 
   private static void test(SparkSession sparkSession) {
@@ -87,6 +111,16 @@ public class Application {
     long numberOfLines = text.count();
     products1.show();
     System.out.println("Number of lines in file: " + numberOfLines);
+  }
+
+  private static void esConfig(SparkSession sparkSession) {
+    SparkConf conf = sparkSession.sparkContext().conf();
+    conf.set("es.nodes", "https://3026df4bb7bb4b10bf29328065079ad3.us-central1.gcp.cloud.es.io");
+    conf.set("es.port", "9243");
+    conf.set("es.nodes.wan.only", "true");
+    conf.set("es.net.http.auth.user", "elastic");
+    conf.set("es.index.auto.create", "true");
+    conf.set("es.net.http.auth.pass", "ITnOziHCzUkp6BroWEGJKxCZ");
   }
 
   private static void localConfig(SparkSession sparkSession) {

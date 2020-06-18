@@ -35,7 +35,8 @@ public class OffersIntegration {
     Dataset<Row> offersValidToday =
         offers
             .where("'" + today + "' between start and end")
-            .withColumn("date", functions$.MODULE$.lit(today));
+            .withColumn("date", functions$.MODULE$.lit(today))
+            .withColumnRenamed("product_id", "id");
     offersValidToday.write().mode(SaveMode.Overwrite).partitionBy("date").parquet(Constants.OFFERS);
   }
 }
