@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions$;
 
 import java.util.Arrays;
 
@@ -25,8 +26,39 @@ public class Application {
       localConfig(sparkSession);
     }
 
-    Dataset<Row> text = sparkSession.read().text("gs://listery-datalake/raw_data/rose.txt");
+    switch (args[3]) {
+      case "integration":
+        new PhysicalIntegration(sparkSession).integrate();
+        break;
+      default:
+        System.out.println("Invalid application");
+        System.exit(1);
+    }
+
+    //    test(sparkSession);
+  }
+
+  private static void test(SparkSession sparkSession) {
+    Dataset<Row> text =
+        sparkSession
+            .read()
+            .schema(StoreConfig.schemaForStore("Store_B"))
+            .json("gs://listery-datalake/raw_data/demo.json");
+    Dataset<Row> products1 =
+        text.select(functions$.MODULE$.explode(text.col("products")).as("exploded"))
+            .select("exploded.*");
+    Dataset<Row> a =
+        sparkSession
+            .read()
+            .option("header", true)
+            .csv("gs://listery-datalake/raw_data/2020-06-16/Store_A.csv");
+    Dataset<Row> c =
+        sparkSession
+            .read()
+            .option("header", true)
+            .csv("gs://listery-datalake/raw_data/2020-06-16/Store_C.csv");
     long numberOfLines = text.count();
+    products1.show();
     System.out.println("Number of lines in file: " + numberOfLines);
   }
 
