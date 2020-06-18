@@ -39,6 +39,15 @@ public class Application {
           new PhysicalIntegration(sparkSession).integrate(dateToProcess);
           break;
         }
+      case "offerIntegration":
+        {
+          Optional<String> dateToProcess = Optional.empty();
+          if (args.length == 5) {
+            dateToProcess = Optional.of(args[4]);
+          }
+          new OffersIntegration(sparkSession).integrate(dateToProcess);
+          break;
+        }
       case "priceDiff":
         {
           Optional<String> dateToProcess = Optional.empty();
