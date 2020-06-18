@@ -8,6 +8,7 @@ import scala.collection.JavaConversions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PhysicalIntegration {
@@ -19,8 +20,8 @@ public class PhysicalIntegration {
     this.sparkSession = sparkSession;
   }
 
-  void integrate() {
-    String today = Utils.todayString();
+  void integrate(Optional<String> dateToProcess) {
+    String today = dateToProcess.orElse(Utils.todayString());
     List<Dataset<Row>> dfs =
         STORES.stream()
             .map(

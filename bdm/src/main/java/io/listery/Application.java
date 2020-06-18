@@ -7,6 +7,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions$;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class Application {
   public static void main(String[] args) {
@@ -25,10 +26,15 @@ public class Application {
     if (runningInLocalMode) {
       localConfig(sparkSession);
     }
+    sparkSession.conf().set("spark.sql.sources.partitionOverwriteMode", "dynamic");
 
     switch (args[3]) {
       case "integration":
-        new PhysicalIntegration(sparkSession).integrate();
+        Optional<String> dateToProcess = Optional.empty();
+        if (args.length == 5) {
+          dateToProcess = Optional.of(args[4]);
+        }
+        new PhysicalIntegration(sparkSession).integrate(dateToProcess);
         break;
       default:
         System.out.println("Invalid application");
