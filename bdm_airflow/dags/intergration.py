@@ -38,8 +38,8 @@ with models.DAG(
         worker_disk_size=20,
         num_preemptible_workers=1,
         zone='us-east1-c',
-        master_machine_type='n1-standard-1',
-        worker_machine_type='n1-standard-1')
+        master_machine_type='n1-standard-4',
+        worker_machine_type='n1-standard-4')
 
     run_integration_job = dataproc_operator.DataProcSparkOperator(
         task_id='run_integration_job',
